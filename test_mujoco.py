@@ -11,7 +11,7 @@ import admittance_py
 from ur_ikfast import ur_kinematics
 import imu_receiver
 
-
+# 设置admittance控制参数
 M = np.array([[50, 0, 0, 0, 0, 0],
      [0, 50, 0, 0, 0, 0],
      [0, 0, 50, 0, 0, 0],
@@ -33,11 +33,13 @@ K = np.array([[10, 0, 0, 0, 0, 0],
 current_vel = np.array([0, 0, 0, 0, 0, 0])
 current_pos = np.array([0, 0, 0, 0, 0, 0])
 
-
+# 初始化imu接收器
 rot_receiver = imu_receiver.imu_receiver('/dev/ttyUSB0', 921600, 20)
+# 初始化相机位置获取
 cam2pos = camera2pos.cam2pos()
+# 初始化ur5逆解
 ur5e_arm = ur_kinematics.URKinematics('ur5e')
-ur5_module = ur5_ik.ur5_ik()
+# ur5_module = ur5_ik.ur5_ik()
 init_imu = rot_receiver.get_data()
 init_quat = init_imu[6:10]
 init_matrix = Rotation.from_quat(init_quat).as_matrix()
@@ -72,7 +74,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         position = cam2pos.get_pos()
 
         if position is not None:
-
+# 进行位置补偿
             position[0] += 0.4
             position[2] += 0.1
             position[0] = -position[0]
@@ -97,13 +99,13 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
                 # end_rotation = Rotation.from_matrix(end_pose[:, :-1])
                 # end_euler_angles = end_rotation.as_euler('xyz')
                 # current_pos = np.concatenate((end_pose[:, -1], end_euler_angles), axis=0)
-
+# 获取末端受力和力矩
                 force = data.sensor('force_sensor').data
                 torque = data.sensor('torque_sensor').data
                 end_force = np.concatenate((force, torque), axis=0)
                 # end_force = np.array([0, 0, 0, 0, 0, 0])
                 # print(end_force)
-
+# 计算admittance控制量
                 current_pos, current_vel = admittance_py.admittance_pos(K, B, M, current_vel, current_pos, end_force, target_pos)
 
                 pose_rotation = Rotation.from_euler('xyz', current_pos[3:])
@@ -113,11 +115,11 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
                 # print(data.qpos.shape)
                 # ctrl = ur5e_arm.inverse(target_pos, False, data.qpos[-6:])
                 # print(ctrl)
-
+# 设置控制量
                 if ctrl is not None:
                     print(True)
                     data.ctrl[-6:] = ctrl
-
+# 进行仿真
         mujoco.mj_step(model, data, 40)
         viewer.sync()
 
