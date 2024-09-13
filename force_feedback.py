@@ -2,7 +2,7 @@ import serial
 import struct
 
 class SerialCommunicator:
-    def __init__(self, port, baudrate, timeout=1):
+    def __init__(self, port, baudrate=9600, timeout=1):
         """
         Initialize the serial communication with the given port, baudrate, and timeout.
         """
