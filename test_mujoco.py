@@ -90,8 +90,8 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
                 euler_angles = pose_rotation.as_euler('xyz')
                 target_pos = np.concatenate((pose[:, -1], euler_angles), axis=0)
 
-                end_pose = np.concatenate(
-                    (data.site('attachment_site').xmat.reshape(3, 3), data.site('attachment_site').xpos[:, np.newaxis]), axis=1)
+                # end_pose = np.concatenate(
+                #     (data.site('attachment_site').xmat.reshape(3, 3), data.site('attachment_site').xpos[:, np.newaxis]), axis=1)
                 # print(end_pose)
  
                 # end_rotation = Rotation.from_matrix(end_pose[:, :-1])
@@ -100,7 +100,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
 
                 force = data.sensor('force_sensor').data
                 torque = data.sensor('torque_sensor').data
-                end_force = np.concatenate((data.sensor('force_sensor').data, data.sensor('torque_sensor').data), axis=0)
+                end_force = np.concatenate((force, torque), axis=0)
                 # end_force = np.array([0, 0, 0, 0, 0, 0])
                 # print(end_force)
 
