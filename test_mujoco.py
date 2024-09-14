@@ -3,7 +3,6 @@ import mujoco.viewer
 import time
 
 import camera2pos
-import ur5_ik
 import numpy as np
 from scipy.spatial.transform import Rotation
 import math
