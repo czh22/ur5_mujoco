@@ -9,3 +9,4 @@ $ python -m pip install mediapipe
 $ git clone https://github.com/czh22/ur5_mujoco.git
 # How to run
 $ python3 test_mujoco.py
+$ python3 pure_mujoco.py
