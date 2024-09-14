@@ -84,9 +84,21 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
 # 获取末端受力和力矩
                 force = data.sensor('force_sensor').data
                 torque = data.sensor('torque_sensor').data
-                end_force = np.concatenate((force, torque), axis=0)
-                # end_force = np.array([0, 0, 0, 0, 0, 0])
-                print(end_force)
+
+                # 获取传感器的位置和旋转矩阵
+                sensor_pos = data.site('attachment_site').xpos
+                sensor_mat = data.site('attachment_site').xmat.reshape(3, 3)
+
+                # 将力转换到世界坐标系
+                force_world = sensor_mat.dot(force)
+
+                # 将力矩转换到世界坐标系
+                torque_world = sensor_mat.dot(torque)
+
+                # 合并力和力矩
+                end_force = np.concatenate((force_world, torque_world), axis=0)
+
+                print("世界坐标系中的力和力矩：", end_force)
 # 计算admittance控制量
                 current_pos, current_vel = admittance_py.admittance_pos(K, B, M, current_vel, current_pos, end_force, target_pos)
 

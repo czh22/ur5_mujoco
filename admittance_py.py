@@ -26,7 +26,7 @@ def admittance_pos(K, B, M, current_target_vel, current_target_pos, current_end_
     global current_time, last_time
     # Fext = Md*(ddxd-ddx0) + Dd*(dxd-dx0) + Kd*(xd-x0)
     # xd是当前末端的目标位置，x0是最终最初输入的目标位置，也是在没有外力阻碍下最终期望达到的位置
-    current_target_accl = np.dot(M.T, (current_end_force.T - np.dot(B, current_target_vel.T) - np.dot(K, (current_target_pos.T - final_target_pos.T))))
+    current_target_accl = np.dot(M.T, (-current_end_force.T - np.dot(B, current_target_vel.T) - np.dot(K, (current_target_pos.T - final_target_pos.T))))
 
     for i in range(6):
         if current_target_accl[i] > 1:
