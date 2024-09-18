@@ -63,8 +63,8 @@ class cam2pos:
 
         if len(detection_result.pose_world_landmarks) > 0:
             # print(detection_result.pose_world_landmarks[0][0])
-            return [-(detection_result.pose_world_landmarks[0][16].z - detection_result.pose_world_landmarks[0][12].z),
-                    detection_result.pose_world_landmarks[0][16].x - detection_result.pose_world_landmarks[0][12].x,
+            return [detection_result.pose_world_landmarks[0][16].x - detection_result.pose_world_landmarks[0][12].x,
+                    (detection_result.pose_world_landmarks[0][16].z - detection_result.pose_world_landmarks[0][12].z), 
                     -(detection_result.pose_world_landmarks[0][16].y - detection_result.pose_world_landmarks[0][12].y)]
 
         else:
@@ -79,7 +79,33 @@ class cam2pos:
 
     def get_pos(self):
         return self.pos
-            
+
+
+
+
+# 在文件末尾添加以下测试函数
+def test_cam2pos():
+    import time
+    
+    # 初始化 cam2pos 对象
+    camera = cam2pos()
+    
+    print("摄像头初始化完成,开始测试...")
+    
+    # 测试持续 10 秒
+    start_time = time.time()
+    while time.time() - start_time < 10:
+        pos = camera.get_pos()
+        if pos is not None:
+            print(f"检测到姿势: x={pos[0]:.2f}, y={pos[1]:.2f}, z={pos[2]:.2f}")
+        else:
+            print("未检测到姿势")
+        time.sleep(0.2)  # 每0.5秒检查一次
+    
+    print("测试完成")
+
+if __name__ == "__main__":
+    test_cam2pos()
 
 
 

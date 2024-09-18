@@ -34,7 +34,7 @@ ur5e_arm = ur_kinematics.URKinematics('ur5e')
 
 model = mujoco.MjModel.from_xml_path('universal_robots_ur5e/scene.xml')
 # model = mujoco.MjModel.from_xml_path('demo.xml')
-model.opt.gravity = 0
+# model.opt.gravity = 0
 data = mujoco.MjData(model)
 # 横着
 # rotation = np.array([[-1, 0, 0],
@@ -81,7 +81,7 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         feedback_force = np.sqrt(np.sum(np.square(force_world)))
 
         print("反馈力的平方和：", feedback_force)
-
+## plt画图数据收集
         time_points.append(data.time)
         feedback_forces.append(feedback_force)
        
