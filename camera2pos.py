@@ -5,6 +5,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 import cv2
+import threading
 
 
 
@@ -22,6 +23,12 @@ class cam2pos:
             base_options=self.base_options,
             output_segmentation_masks=True)
         self.detector = vision.PoseLandmarker.create_from_options(self.options)
+        
+        self.pos = None
+
+        # 创建并启动线程
+        self.thread = threading.Thread(target=self._camera_thread)
+        self.thread.start()
 
     def draw_landmarks_on_image(self, rgb_image, detection_result):
         pose_landmarks_list = detection_result.pose_landmarks
@@ -44,7 +51,7 @@ class cam2pos:
         return annotated_image
 
 
-    def get_pos(self):
+    def infer_pos(self):
         ret, img = self.cap.read()
         if cv2.waitKey(1) == ord('q'):  # 按下 'q' 键退出循环
             self.cap.release()  # 关闭摄像头
@@ -62,5 +69,17 @@ class cam2pos:
 
         else:
             return None
+        
+
+    def _camera_thread(self):
+        while True:
+            pos = self.infer_pos()
+            if pos is not None:
+                self.pos = pos
+
+    def get_pos(self):
+        return self.pos
+            
+
 
 
