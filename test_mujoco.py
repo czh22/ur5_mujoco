@@ -63,7 +63,7 @@ rotation = np.array([[-1.64292755e-03,  9.98002831e-01, -6.31478444e-02],
 trans_matrix = np.dot(rotation, np.linalg.inv(init_matrix))
 
 with mujoco.viewer.launch_passive(model, data) as viewer:
-    time.sleep(5)
+    
     real_start_time = time.time()
     while viewer.is_running():
 
@@ -92,12 +92,12 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
         #     ctrl = ur5e_arm.inverse(pose, False, [-3.14, -0.251, 0.0943, -1.51, -1.57, 0])
             
 
-            if True:
+           
 
-                # 释教姿态3x4转6
-                pose_rotation = Rotation.from_matrix(pose[:, :3])
-                euler_angles = pose_rotation.as_euler('xyz')
-                target_pos = np.concatenate((pose[:, -1], euler_angles), axis=0)
+                # 示教姿态3x4转6
+            pose_rotation = Rotation.from_matrix(pose[:, :3])
+            euler_angles = pose_rotation.as_euler('xyz')
+            target_pos = np.concatenate((pose[:, -1], euler_angles), axis=0)
 
                 # end_pose = np.concatenate(
                 #     (data.site('attachment_site').xmat.reshape(3, 3), data.site('attachment_site').xpos[:, np.newaxis]), axis=1)
@@ -109,44 +109,43 @@ with mujoco.viewer.launch_passive(model, data) as viewer:
 
 
                 ## 获取末端受力和力矩
-                force = data.sensor('force_sensor').data
-                torque = data.sensor('torque_sensor').data
+            force = data.sensor('force_sensor').data
+            torque = data.sensor('torque_sensor').data
 
                         ## 获取传感器的位置和旋转矩阵
-                sensor_pos = data.site('attachment_site').xpos
-                sensor_mat = data.site('attachment_site').xmat.reshape(3, 3)
+            sensor_pos = data.site('attachment_site').xpos
+            sensor_mat = data.site('attachment_site').xmat.reshape(3, 3)
 
                         ## 将力转换到世界坐标系
-                force_world = sensor_mat.dot(force)
+            force_world = sensor_mat.dot(force)
 
                         ## 将力矩转换到世界坐标系
-                torque_world = sensor_mat.dot(torque)
+            torque_world = sensor_mat.dot(torque)
 
                         ## 合并力和力矩
-                end_force = np.concatenate((force_world, torque_world), axis=0)
+            end_force = np.concatenate((force_world, torque_world), axis=0)
 
                        
 
                         ## 计算feedback_force
-                feedback_force = np.sqrt(np.sum(np.square(force_world)))
+            feedback_force = np.sqrt(np.sum(np.square(force_world)))
 
-                print("反馈力的平方和：", feedback_force)
-
-                # communicator.send_float(feedback_force)
-                communicator.set_value(feedback_force)
+            print("反馈力的平方和：", feedback_force)
+## 发送力给arduino
+            communicator.set_value(feedback_force)
                 ## 计算admittance控制量
-                current_pos, current_vel = admittance_py.admittance_pos(K, B, M, current_vel, current_pos, end_force, target_pos)
+            current_pos, current_vel = admittance_py.admittance_pos(K, B, M, current_vel, current_pos, end_force, target_pos)
 
-                pose_rotation = Rotation.from_euler('xyz', current_pos[3:])
-                matrix = pose_rotation.as_matrix()
-                target_pos = np.concatenate((matrix, current_pos[:3, np.newaxis]), axis=1)
-               
-                ctrl = ur5e_arm.inverse(target_pos, False, [-3.14, -0.251, 0.0943, -1.51, -1.57, 0])
+            pose_rotation = Rotation.from_euler('xyz', current_pos[3:])
+            matrix = pose_rotation.as_matrix()
+            target_pos = np.concatenate((matrix, current_pos[:3, np.newaxis]), axis=1)
+## 求解逆运动学               
+            ctrl = ur5e_arm.inverse(target_pos, False, [-3.14, -0.251, 0.0943, -1.51, -1.57, 0])
                 
 ## 设置控制量
-                if ctrl is not None:
-                    print(True)
-                    data.ctrl[-6:] = ctrl
+            if ctrl is not None:
+                print(True)
+                data.ctrl[-6:] = ctrl
 ## 进行仿真
         current_time = time.time()
         ## 确保仿真时间和真实时间同步
