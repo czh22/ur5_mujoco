@@ -8,24 +8,24 @@ from ur_ikfast import ur_kinematics
 import matplotlib.pyplot as plt
 
 # 设置admittance控制参数
-M = np.array([[100, 0, 0, 0, 0, 0],
-     [0, 100, 0, 0, 0, 0],
-     [0, 0, 100, 0, 0, 0],
-     [0, 0, 0, 100, 0, 0],
-     [0, 0, 0, 0, 100, 0],
-     [0, 0, 0, 0, 0, 100]])
-B = np.array([[50, 0, 0, 0, 0, 0],
-     [0, 50, 0, 0, 0, 0],
-     [0, 0, 50, 0, 0, 0],
-     [0, 0, 0, 50, 0, 0],
-     [0, 0, 0, 0, 50, 0],
-     [0, 0, 0, 0, 0, 50]])
-K = np.array([[200, 0, 0, 0, 0, 0],
-     [0, 200, 0, 0, 0, 0],
-     [0, 0, 200, 0, 0, 0],
-     [0, 0, 0, 200, 0, 0],
-     [0, 0, 0, 0, 200, 0],
-     [0, 0, 0, 0, 0, 200]])
+M = np.array([[20, 0, 0, 0, 0, 0],
+              [0, 20, 0, 0, 0, 0],
+              [0, 0, 20, 0, 0, 0],
+              [0, 0, 0, 20, 0, 0],
+              [0, 0, 0, 0, 20, 0],
+              [0, 0, 0, 0, 0, 20]])
+B = np.array([[100, 0, 0, 0, 0, 0],
+              [0, 100, 0, 0, 0, 0],
+              [0, 0, 100, 0, 0, 0],
+              [0, 0, 0, 100, 0, 0],
+              [0, 0, 0, 0, 100, 0],
+              [0, 0, 0, 0, 100, 0]])
+K = np.array([[150, 0, 0, 0, 0, 0],
+              [0, 150, 0, 0, 0, 0],
+              [0, 0, 150, 0, 0, 0],
+              [0, 0, 0, 150, 0, 0],
+              [0, 0, 0, 0, 150, 0],
+              [0, 0, 0, 0, 0, 150]])
 current_vel = np.array([0, 0, 0, 0, 0, 0])
 current_pos = np.array([0, 0, 0, 0, 0, 0])
 
@@ -34,7 +34,7 @@ ur5e_arm = ur_kinematics.URKinematics('ur5e')
 
 model = mujoco.MjModel.from_xml_path('universal_robots_ur5e/scene.xml')
 # model = mujoco.MjModel.from_xml_path('demo.xml')
-# model.opt.gravity = 0
+model.opt.gravity = 0
 data = mujoco.MjData(model)
 # 横着
 # rotation = np.array([[-1, 0, 0],
@@ -42,21 +42,21 @@ data = mujoco.MjData(model)
 #                      [0, 1, 0]])
 # 朝下
 rotation = np.array([[-0,  1, 0],
-                [ 1,  0, 0],
-                [0, 0, -1]])
+                    [ 1,  0, 0],
+                    [0, 0, -1]])
 
 # 在主循环外部初始化列表来存储数据
 time_points = []
 feedback_forces = []
 
 with mujoco.viewer.launch_passive(model, data) as viewer:
-    position = [0.6, 0.1, 0.04]
+    position = [0.85, 0.1, 0.05]
     real_start_time = time.time()
     while viewer.is_running():
         
         
         if data.time > 10:
-            position[2] = -0.03
+            position[2] = -0.1
        
         # 获取末端受力和力矩
         force = data.sensor('force_sensor').data
