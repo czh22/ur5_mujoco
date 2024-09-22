@@ -29,10 +29,10 @@ def admittance_pos(K, B, M, current_target_vel, current_target_pos, current_end_
     current_target_accl = np.dot(M.T, (-current_end_force.T - np.dot(B, current_target_vel.T) - np.dot(K, (current_target_pos.T - final_target_pos.T))))
 
     for i in range(6):
-        if current_target_accl[i] > 3:
-            current_target_accl[i] = 3
-        elif current_target_accl[i] < -3:
-            current_target_accl[i] = -3
+        if current_target_accl[i] > 2:
+            current_target_accl[i] = 2
+        elif current_target_accl[i] < -2:
+            current_target_accl[i] = -2
 
     current_time = time.time()
     dt = current_time - last_time

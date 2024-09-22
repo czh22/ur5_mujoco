@@ -24,7 +24,7 @@ class cam2pos:
             output_segmentation_masks=True)
         self.detector = vision.PoseLandmarker.create_from_options(self.options)
         
-        self.pos = None
+        self.pos = [0, 0, 0]
 
         # 创建并启动线程
         self.thread = threading.Thread(target=self._camera_thread)
@@ -76,9 +76,10 @@ class cam2pos:
             pos = self.infer_pos()
             if pos is not None:
                 self.pos = pos
+          
 
     def get_pos(self):
-        return self.pos
+        return self.pos.copy()
 
 
 
