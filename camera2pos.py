@@ -5,6 +5,7 @@ import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
 import cv2
+import threading
 
 
 
@@ -22,6 +23,12 @@ class cam2pos:
             base_options=self.base_options,
             output_segmentation_masks=True)
         self.detector = vision.PoseLandmarker.create_from_options(self.options)
+        
+        self.pos = [0, 0, 0]
+
+        # 创建并启动线程
+        self.thread = threading.Thread(target=self._camera_thread)
+        self.thread.start()
 
     def draw_landmarks_on_image(self, rgb_image, detection_result):
         pose_landmarks_list = detection_result.pose_landmarks
@@ -44,7 +51,7 @@ class cam2pos:
         return annotated_image
 
 
-    def get_pos(self):
+    def infer_pos(self):
         ret, img = self.cap.read()
         if cv2.waitKey(1) == ord('q'):  # 按下 'q' 键退出循环
             self.cap.release()  # 关闭摄像头
@@ -56,11 +63,50 @@ class cam2pos:
 
         if len(detection_result.pose_world_landmarks) > 0:
             # print(detection_result.pose_world_landmarks[0][0])
-            return [-(detection_result.pose_world_landmarks[0][16].z - detection_result.pose_world_landmarks[0][12].z),
-                    detection_result.pose_world_landmarks[0][16].x - detection_result.pose_world_landmarks[0][12].x,
+            return [detection_result.pose_world_landmarks[0][16].x - detection_result.pose_world_landmarks[0][12].x,
+                    (detection_result.pose_world_landmarks[0][16].z - detection_result.pose_world_landmarks[0][12].z), 
                     -(detection_result.pose_world_landmarks[0][16].y - detection_result.pose_world_landmarks[0][12].y)]
 
         else:
             return None
+        
+
+    def _camera_thread(self):
+        while True:
+            pos = self.infer_pos()
+            if pos is not None:
+                self.pos = pos
+          
+
+    def get_pos(self):
+        return self.pos.copy()
+
+
+
+
+# 在文件末尾添加以下测试函数
+def test_cam2pos():
+    import time
+    
+    # 初始化 cam2pos 对象
+    camera = cam2pos()
+    
+    print("摄像头初始化完成,开始测试...")
+    
+    # 测试持续 10 秒
+    start_time = time.time()
+    while time.time() - start_time < 10:
+        pos = camera.get_pos()
+        if pos is not None:
+            print(f"检测到姿势: x={pos[0]:.2f}, y={pos[1]:.2f}, z={pos[2]:.2f}")
+        else:
+            print("未检测到姿势")
+        time.sleep(0.2)  # 每0.5秒检查一次
+    
+    print("测试完成")
+
+if __name__ == "__main__":
+    test_cam2pos()
+
 
 
