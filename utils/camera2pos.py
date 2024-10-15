@@ -18,7 +18,7 @@ class cam2pos:
         if not self.cap.isOpened():
             raise ValueError("无法打开摄像头")
 
-        self.base_options = python.BaseOptions(model_asset_path='pose_landmarker.task')
+        self.base_options = python.BaseOptions(model_asset_path='utils/pose_landmarker.task')
         self.options = vision.PoseLandmarkerOptions(
             base_options=self.base_options,
             output_segmentation_masks=True)
@@ -53,13 +53,14 @@ class cam2pos:
 
     def infer_pos(self):
         ret, img = self.cap.read()
-        if cv2.waitKey(1) == ord('q'):  # 按下 'q' 键退出循环
-            self.cap.release()  # 关闭摄像头
-            cv2.destroyAllWindows()  # 关闭窗口
+        
         image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
         detection_result = self.detector.detect(image)
         annotated_image = self.draw_landmarks_on_image(image.numpy_view(), detection_result)
         cv2.imshow('res', annotated_image)
+        if cv2.waitKey(1) == ord('q'):  # 按下 'q' 键退出循环
+            self.cap.release()  # 关闭摄像头
+            cv2.destroyAllWindows()  # 关闭窗口
 
         if len(detection_result.pose_world_landmarks) > 0:
             # print(detection_result.pose_world_landmarks[0][0])

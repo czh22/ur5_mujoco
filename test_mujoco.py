@@ -2,14 +2,14 @@ import mujoco
 import mujoco.viewer
 import time
 
-import camera2pos
+import utils.camera2pos as camera2pos
 import numpy as np
 from scipy.spatial.transform import Rotation
 import math
-import admittance_py
+import utils.admittance_py as admittance_py
 from ur_ikfast import ur_kinematics
-import imu_receiver
-import force_feedback
+import utils.imu_receiver as imu_receiver
+import utils.force_feedback as force_feedback
 
 # 设置admittance控制参数
 M = np.array([[20, 0, 0, 0, 0, 0],

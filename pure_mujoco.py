@@ -3,10 +3,10 @@ import mujoco.viewer
 import time
 import numpy as np
 from scipy.spatial.transform import Rotation
-import admittance_py
+import utils.admittance_py as admittance_py
 from ur_ikfast import ur_kinematics
 import matplotlib.pyplot as plt
-from filter import average_filter
+from utils.filter import average_filter
 
 # 设置admittance控制参数
 M = np.array([[20, 0, 0, 0, 0, 0],

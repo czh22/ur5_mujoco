@@ -40,9 +40,9 @@ class ur5_ik:
         return joint_configs[min_index]
 
 
-# ur5_module = ur5_ik()
-# print(ur5_module.forward_kinematic([-2.71316499e-01,  8.07371497e-01, -1.87837207e+00 , 1.07100058e+00
-#  ,-2.71316499e-01 ,-3.55271368e-15]))
+if __name__ == '__main__':
+    ur5_module = ur5_ik()
+    print(ur5_module.forward_kinematic([-0.45910328, -1.71746629, 2.47043402, -2.26406746, -1.59147263, -0.41915311]))
 
 
 

@@ -1,10 +1,12 @@
-
+import numpy as np
 import serial  # 导入模块
 import serial.tools.list_ports
 import threading
 import struct
 import time
 from serial import EIGHTBITS, PARITY_NONE, STOPBITS_ONE
+from scipy.spatial.transform import Rotation
+
 
 # 宏定义参数
 PI = 3.1415926
@@ -62,6 +64,12 @@ class imu_receiver():
         self.bps = bps
         self.timeout = timeout
         self.AHRS_DATA = None
+        ## 朝下
+        self.down_rotation = np.array([[-0.02185321, -0.99873381, -0.04531251],
+                                        [-0.99963531,  0.02254722, -0.01486196],
+                                        [ 0.01586481,  0.0449712,  -0.9988623]])
+
+        self.trans_matrix = None
         open_port(self.port)
         try:
             self.serial = serial.Serial(port=self.port, baudrate=self.bps, bytesize=EIGHTBITS, parity=PARITY_NONE,
@@ -142,6 +150,19 @@ class imu_receiver():
                 # return AHRS_DATA
     def get_data(self):
         return self.AHRS_DATA
+    
+    def init_rotation(self):
+        init_imu = self.get_data()
+        init_quat = init_imu[6:10]
+        init_matrix = Rotation.from_quat(init_quat).as_matrix()
+        self.trans_matrix = np.dot(self.down_rotation, np.linalg.inv(init_matrix))
+
+    def get_rotation(self):
+        imu_data = self.get_data()
+        quat = imu_data[6:10]
+        rotation = Rotation.from_quat(quat).as_matrix()
+        rotation = np.dot(self.trans_matrix, rotation)
+        return rotation
             
 
 
